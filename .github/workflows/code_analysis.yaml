@@ -11,6 +11,10 @@ jobs:
             matrix:
                 actions:
                     -
+                        name: "Composer validate"
+                        run: composer validate
+
+                    -
                         name: "PHPStan"
                         run: vendor/bin/phpstan --ansi --no-progress
 

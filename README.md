@@ -2,6 +2,8 @@
 
 An event stream library based on `tail`.
 
+**Note: I don't think you should use this library in a real project, but it's great for educational purposes. I use it in workshops only.**"
+
 ## Getting started
 
 Install using Composer:
