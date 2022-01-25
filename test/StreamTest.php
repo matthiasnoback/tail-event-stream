@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace TailEventStream\Test;
 
-use TailEventStream\Stream;
 use Asynchronicity\PHPUnit\Eventually;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -65,6 +64,7 @@ final class StreamTest extends TestCase
                 'STREAM_FILE_PATH' => $this->streamFilePath
             ]
         );
+
         $this->consumer->start();
         $this->helloWorldProducer->run();
 
@@ -76,9 +76,11 @@ final class StreamTest extends TestCase
 
         self::assertThat(
             function () {
-                self::assertStringContainsString('Hello, world!', $this->consumer->getIncrementalOutput());
+                self::assertStringContainsString("'Hello' => 'World!'", $this->consumer->getOutput());
             },
-            new Eventually(5000, 500));
+            new Eventually(5000, 500),
+            'Complete output: ' . $this->consumer->getOutput()
+        );
     }
 
     /**
@@ -122,7 +124,7 @@ final class StreamTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->consumer->stop();
+        $this->consumer->stop(0, SIGTERM);
 
         $this->helloWorldProducer->stop();
 

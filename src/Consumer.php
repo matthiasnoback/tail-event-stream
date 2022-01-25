@@ -14,9 +14,12 @@ final class Consumer
     public function __construct(string $streamFilePath)
     {
         $this->streamFilePath = $streamFilePath;
+        if (!is_file($this->streamFilePath)) {
+            touch($this->streamFilePath);
+        }
     }
 
-    public function consume(callable $callback, int $startAtIndex): void
+    public function consume(callable $callback, int $startAtIndex = 0): void
     {
         Assertion::greaterOrEqualThan($startAtIndex, 0, 'The consumer can only start consuming at index 0 or greater');
 
@@ -38,6 +41,16 @@ final class Consumer
         // don't forward output, let the callback deal with it
         $process->disableOutput();
 
+        // stop the consumer when the parent process stops
+        $stop = function () use ($process) {
+            $process->stop(0);
+        };
+        register_shutdown_function($stop);
+        pcntl_signal(SIGTERM, function () use ($stop) {
+            $stop();
+        });
+
+        // start `tail`
         $process->start(function ($type, $data) use ($callback) {
             if ($type === Process::OUT) {
                 $lines = explode("\n", $data);
@@ -60,7 +73,9 @@ final class Consumer
             }
         });
 
-        // wait until `tail` terminates
-        $process->wait();
+        while ($process->isRunning()) {
+            usleep(1000);
+            pcntl_signal_dispatch();
+        }
     }
 }
