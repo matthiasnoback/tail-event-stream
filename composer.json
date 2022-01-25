@@ -3,9 +3,9 @@
   "description": "A simple, tail-based event stream",
   "license": "MIT",
   "require": {
-    "php": "^8.1",
+    "php": "^8.0",
     "beberlei/assert": "^3.3",
-    "symfony/process": "^6.0",
+    "symfony/process": "^5.3 || ^6.0",
     "ext-pcntl": "*"
   },
   "autoload": {
